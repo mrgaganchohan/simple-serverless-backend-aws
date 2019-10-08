@@ -4,6 +4,9 @@ service: simple-backend
 custom:
   settings:
     POSTS_TABLE: posts
+  pythonRequirements:
+    dockerizePip: true
+
 
 provider:
   name: aws
@@ -23,7 +26,7 @@ provider:
       Resource:
       #Mentioning name of region and the table
         - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.settings.POSTS_TABLE}"
-  
+
 functions:
   hello:
     handler: handler.hello
@@ -36,10 +39,19 @@ functions:
           path: getuserinfo
           method: get
           cors: true
+  putuserinfo:
+    handler: handler.putuserinfo
+    events:
+      - http:
+          path: putuserinfo
+          method: put
+          cors: true
     # events:
     # - http:
     #   path: /post
     #   method: post
+#Install the following plugin using npm if you want to use boto3
+
 resources:
 #under resource, cloudformation template can be defined. 
   Resources:
@@ -47,7 +59,7 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-        - AttributeName: "id"
+        - AttributeName: "username"
           AttributeType: "S"
         - AttributeName: "gameid"
           AttributeType: "S"
@@ -56,7 +68,7 @@ resources:
         #Following is same as CloudFromation syntax
         #KeySchema should have length less than or equal to 2.
         KeySchema:
-          - AttributeName: "id"
+          - AttributeName: "username"
             KeyType: "HASH"
           - AttributeName: "gameid"
             KeyType: "RANGE"
@@ -65,3 +77,5 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:custom.settings.POSTS_TABLE}
+plugins:
+  - serverless-python-requirements

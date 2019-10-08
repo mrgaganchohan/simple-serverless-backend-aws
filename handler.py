@@ -1,5 +1,5 @@
 import json
-
+import boto3
 
 def hello(event, context):
     print ("event name is" + event)
@@ -11,8 +11,24 @@ def createPost(event, context):
 
 def getuserinfo(event, context):
     print ("context is", context)
-    # print ("id is "+ id)
-    message = "This is the message"
+   
+    message = "Data was saved"
+    return {
+        'statusCode' : 200,
+        'headers': {'Content-Type': 'application/json'},
+        'body': json.dumps({'message' : message })
+    }
+
+dynamodb = boto3.client('dynamodb')
+
+def putuserinfo(event, context):
+    dynamodb.put_item( TableName = 'posts',
+        Item = {
+            'username': '12345',
+            'gameid':'123'
+        }
+    )
+    message = "Data was saved"
     return {
         'statusCode' : 200,
         'headers': {'Content-Type': 'application/json'},
